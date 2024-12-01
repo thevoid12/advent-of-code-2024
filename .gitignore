@@ -1,0 +1,9 @@
+# Ignore everything
+*
+# Un-ignore the code/ directory
+!code/
+!code/**
+
+# Un-ignore the input file
+!input/
+!input/*
