@@ -88,6 +88,7 @@ int part2(vector<vector<int>> input)
   {
     bool dec = false;
     bool ok = true;
+
     for (int j = 1; j < input[i].size(); j++)
     {
       int diff = 0;
