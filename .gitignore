@@ -2,8 +2,8 @@
 *
 # Un-ignore the code/ directory
 !code/
-!code/**
+!code/*.cpp
 
 # Un-ignore the input file
 !input/
-!input/*
+!input/*.txt
