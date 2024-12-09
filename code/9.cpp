@@ -1,197 +1,109 @@
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <fstream>
-#include <tuple>
-#include <map>
-#include <queue>
-#include <stack>
-#include <array>
-#include <unordered_map>
-
+#include <cmath>
 using namespace std;
 
-class Solution
+vector<int> a;
+string parseInput()
 {
-private:
-  fstream fin;
-  string data;
-
-  void parse()
+  ifstream f("../input/9.txt");
+  string s;
+  string temp;
+  while (getline(f, temp))
   {
-    string line;
-    while (getline(this->fin, line))
-    {
-      this->data += line;
-    }
+    s += temp;
   }
 
-  void fragmentation(vector<tuple<int64_t, int>> &nums, int pos)
-  {
-    for (int i = 0; i < pos; ++i)
-    {
-      if (get<0>(nums[i]) != -1)
-      {
-        continue;
-      }
+  return s;
+}
 
-      if (get<1>(nums[i]) == get<1>(nums[pos]))
-      {
-        swap(nums[pos], nums[i]);
-
-        return;
-      }
-      else if (get<1>(nums[i]) > get<1>(nums[pos]))
-      {
-
-        tuple<uint64_t, int> temp = {-1, get<1>(nums[i]) - get<1>(nums[pos])};
-        tuple<uint64_t, int> temp2 = {-1, get<1>(nums[pos])};
-
-        nums[i] = {get<0>(nums[pos]), get<1>(nums[pos])};
-        nums[pos] = temp2;
-        nums.insert(nums.begin() + i + 1, temp);
-
-        return;
-      }
-      else
-      {
-        continue;
-      }
-    }
-  }
-
-  void combineFragmentations(vector<tuple<int64_t, int>> &nums)
-  {
-    int pos = 0;
-    while (pos < nums.size() - 1)
-    {
-      if (get<0>(nums[pos]) == -1 && get<0>(nums[pos + 1]) == -1)
-      {
-        get<1>(nums[pos]) += get<1>(nums[pos + 1]);
-        nums.erase(nums.begin() + pos + 1);
-      }
-      else
-      {
-        pos++;
-      }
-    }
-  }
-
-public:
-  Solution(string fileName)
-  {
-    this->fin.open(fileName, ios::in);
-    this->parse();
-    this->fin.close();
-  }
-
-  auto part1() -> uint64_t
-  {
-    uint64_t sol = 0;
-    vector<uint64_t> nums;
-    uint64_t c = 0;
-
-    for (int i = 0; i < this->data.size(); i++)
-    {
-      if (i % 2 == 0)
-      {
-        for (int j = 0; j < this->data[i] - '0'; j++)
-        {
-          nums.push_back(c);
-        }
-
-        c++;
-      }
-      else
-      {
-        for (int j = 0; j < this->data[i] - '0'; j++)
-        {
-          nums.push_back(-1);
-        }
-      }
-    }
-
-    int low = 0, high = nums.size() - 1;
-
-    while (low < high)
-    {
-      if (nums[low] != -1)
-      {
-        low++;
-      }
-      else if (nums[high] == -1)
-      {
-        high--;
-      }
-      else
-      {
-        swap(nums[low], nums[high]);
-        low++;
-        high--;
-      }
-    }
-
-    for (uint64_t i = 0; i < nums.size(); i++)
-    {
-      if (nums[i] != -1)
-      {
-        sol += (uint64_t)nums[i] * i;
-      }
-    }
-
-    return sol;
-  }
-  auto part2() -> uint64_t
-  {
-    uint64_t sol = 0;
-    vector<tuple<int64_t, int>> nums;
-    uint64_t c = 0;
-
-    for (int i = 0; i < this->data.size(); i++)
-    {
-      if (i % 2 == 0)
-        nums.push_back({c++, this->data[i] - '0'});
-      else
-        nums.push_back({-1, this->data[i] - '0'});
-    }
-
-    for (int i = nums.size() - 1; i > 0; i--)
-    {
-      if (get<0>(nums[i]) == -1)
-        continue;
-
-      this->fragmentation(nums, i);
-      this->combineFragmentations(nums);
-    }
-
-    uint64_t id = 0;
-    for (int i = 0; i < nums.size(); i++)
-    {
-      if (get<0>(nums[i]) != -1)
-        for (int j = 0; j < get<1>(nums[i]); j++)
-          sol += get<0>(nums[i]) * id++;
-      else
-      {
-        id += get<1>(nums[i]);
-      }
-    }
-
-    return sol;
-  }
-};
-
-auto main() -> int
+void processIp(string s)
 {
+  int idx = 0;
+  for (long long i = 0; i < s.size(); i++)
+  {
+    int num;
+    num = s[i] - '0'; // char to int
+    if (i % 2 == 0)
+    {
 
-  Solution aoc = Solution("../input/9.txt");
-  Solution test1 = Solution("test1.txt");
-  Solution test2 = Solution("test2.txt");
+      for (int j = 0; j < num; j++)
+      {
+        a.push_back(idx);
+      }
+      idx++;
+    }
+    else
+    {
+      for (int j = 0; j < num; j++)
+      {
+        a.push_back(-1);
+      }
+    }
+  }
+}
 
-  cout << "Part 1 test: " << test1.part1() << endl;
-  cout << "Part 1: " << aoc.part1() << endl;
-  cout << "--------------------------" << endl;
-  cout << "Part 2 test: " << test2.part2() << endl;
-  cout << "Part 2: " << aoc.part2() << endl;
+void rearrangeIp()
+{
+  int i = 0, j = a.size() - 1;
+  while (i < j)
+  {
+    // Find the leftmost free space
+    while (i < j && a[i] != -1)
+      i++;
+    // Find the rightmost file block
+    while (i < j && a[j] == -1)
+      j--;
 
-  return 0;
+    // Swap if valid indices are found
+    if (i < j)
+    {
+      swap(a[i], a[j]);
+      i++;
+      j--;
+    }
+  }
+}
+
+// using 2 pointer approach to solve A
+long long partA()
+{
+  long long res = 0;
+  for (int i = 0; i < a.size(); i++)
+  {
+    if (a[i] == -1)
+    {
+      break;
+    }
+    res += ((a[i]) * i);
+  }
+
+  return res;
+}
+
+int main()
+{
+  string s;
+  s = parseInput();
+  // cout << s << endl;
+  string s1;
+  processIp(s);
+  for (int i = 0; i < a.size(); i++)
+  {
+    cout << a[i] << " ";
+  }
+  cout << endl;
+  cout << "***************************************************************" << endl;
+  // cout << s1 << endl;
+  string sp;
+  rearrangeIp();
+  for (int i = 0; i < a.size(); i++)
+  {
+    cout << a[i] << " ";
+  }
+  cout << "***************************************************************" << endl;
+
+  long long res;
+  res = partA();
+  cout << res << endl;
 }
