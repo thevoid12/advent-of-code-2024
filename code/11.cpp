@@ -8,6 +8,17 @@ using namespace std;
 
 vector<string> ip;
 
+struct hash_pair
+{
+  template <class T1, class T2>
+  size_t operator()(const pair<T1, T2> &p) const
+  {
+    auto hash1 = hash<T1>{}(p.first);
+    auto hash2 = hash<T2>{}(p.second);
+    return hash1 ^ hash2; // Combine the hashes
+  }
+};
+
 void parseInput()
 {
   ifstream f("../input/11.txt");
@@ -81,40 +92,42 @@ void part1()
   }
 }
 
-int recurse(unordered_map<lli, lli> cache, int round, lli val)
+int recurse(unordered_map<pair<int, lli>, lli, hash_pair> &cache, int round, lli val)
 {
   if (round == 0)
   {
-    return 1; // atleast 1 element is there
-  }
-  if (cache[val] != 0) // dp
-  {
-    return cache[val];
+    return 1; // Base case
   }
 
-  int total;
+  auto key = make_pair(round, val);
+  if (cache.find(key) != cache.end())
+  {
+    return cache[key]; // Memoized result
+  }
+
+  int total = 0; // Initialize total
+  string val_str = to_string(val);
+
   if (val == 0)
   {
     total = recurse(cache, round - 1, 1);
   }
-  if (to_string(val).size() % 2 == 0)
+  else if (val_str.size() % 2 == 0)
   {
-    int mid = to_string(val).size() / 2;
-    long long left = stoll(to_string(val).substr(0, mid));
-    long long right = stoll(to_string(val).substr(mid));
-    lli leftrecurse = recurse(cache, round - 1, left);
-    lli rightrecurse = recurse(cache, round - 1, right);
-    total = leftrecurse + rightrecurse;
+    int mid = val_str.size() / 2;
+    long long left = stoll(val_str.substr(0, mid));
+    long long right = stoll(val_str.substr(mid));
+    total = recurse(cache, round - 1, left) + recurse(cache, round - 1, right);
   }
   else
   {
     total = recurse(cache, round - 1, val * 2024);
   }
 
-  cache[val] = total;
+  cache[key] = total; // Memoize the result
   return total;
 }
-int solve(unordered_map<lli, lli> cache, int round)
+int solve(unordered_map<pair<int, lli>, lli, hash_pair> &cache, int round)
 {
   int total = 0;
   for (string val : ip)
@@ -125,11 +138,13 @@ int solve(unordered_map<lli, lli> cache, int round)
 }
 int main()
 {
-  unordered_map<lli, lli> cache;
+  unordered_map<pair<int, lli>, lli, hash_pair> cache;
   parseInput();
   int ans;
-  ans = solve(cache, 5);
-  cout << ans;
+  ans = solve(cache, 25);
+  cout << ans << endl;
+  ans = solve(cache, 75);
+  cout << ans << endl;
   // for (int j = 0; j < 25; j++)
   // {
   //   part1();
