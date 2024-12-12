@@ -143,7 +143,6 @@ int main()
   int ans;
   ans = solve(cache, 25);
   cout << ans << endl;
-  ans = solve(cache, 75);
   cout << ans << endl;
   // for (int j = 0; j < 25; j++)
   // {
